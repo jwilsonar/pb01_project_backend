@@ -1,98 +1,197 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sistema de Gestión de Empleados - API REST
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Descripción
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+API REST desarrollada con NestJS para la gestión de empleados y recursos humanos. El sistema permite gestionar empleados, sus documentos y permisos de acceso basados en roles.
 
-## Description
+## Características Principales
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Autenticación JWT
+- Roles de usuario (RRHH y empleados)
+- Gestión de empleados (CRUD)
+- Documentación OpenAPI/Swagger
+- Validación de datos
+- Manejo de errores estandarizado
+- Seguridad y encriptación de contraseñas
+- Migraciones de base de datos
+- Seeders para datos iniciales
 
-## Project setup
+## Requisitos Previos
 
+- Node.js (v18 o superior)
+- PostgreSQL (v12 o superior)
+- npm (incluido con Node.js)
+
+## Configuración del Proyecto
+
+1. **Clonar el repositorio**
 ```bash
-$ npm install
+git clone <repository-url>
+cd server
 ```
 
-## Compile and run the project
-
+2. **Instalar dependencias**
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+3. **Configurar variables de entorno**
+Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=your_user
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=your_database
 
-```bash
-# unit tests
-$ npm run test
+# JWT
+JWT_SECRET=your_jwt_secret
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Server
+PORT=5000
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+4. **Ejecutar migraciones**
 ```bash
-$ npm install -g mau
-$ mau deploy
+npm run migration:run
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+5. **Crear usuario inicial de RRHH**
+```bash
+npm run seed
+```
 
-## Resources
+## Estructura de la Base de Datos
 
-Check out a few resources that may come in handy when working with NestJS:
+### Tablas Principales
+- **t_users**: Almacena información de usuarios y sus roles
+- **t_employees**: Información específica de empleados
+- **t_document_types**: Tipos de documentos permitidos
+- **t_employee_documents**: Documentos asociados a empleados
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Usuarios y Roles
 
-## Support
+### Usuario de RRHH (por defecto)
+- **Email**: rrhh@empresa.com
+- **Contraseña**: Rrhh2024!
+- **Rol**: RRHH (is_hr: true)
+- **Permisos**: 
+  - Crear empleados
+  - Ver lista de empleados
+  - Ver detalles de empleados
+  - Actualizar empleados
+  - Eliminar empleados
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Empleados Regulares
+- Acceso limitado a su propia información
+- No pueden crear/modificar otros empleados
 
-## Stay in touch
+## API Endpoints
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Autenticación
+- **POST /api/auth/login**: Iniciar sesión
+- **POST /api/auth/register**: Registrar nuevo usuario
+- **POST /api/auth/logout**: Cerrar sesión
 
-## License
+### Empleados (requiere rol RRHH)
+- **GET /api/empleados**: Obtener lista de empleados
+- **GET /api/empleados/:id**: Obtener detalles de un empleado
+- **POST /api/empleados**: Crear nuevo empleado
+- **PATCH /api/empleados/:id**: Actualizar empleado
+- **DELETE /api/empleados/:id**: Eliminar empleado
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Documentación de la API
+
+La documentación detallada de la API está disponible a través de Swagger UI:
+```bash
+# Iniciar el servidor
+npm run start:dev
+
+# Acceder a la documentación
+http://localhost:5000/api/docs
+```
+
+## Scripts Disponibles
+
+```bash
+# Desarrollo
+npm run start:dev
+
+# Producción
+npm run start:prod
+
+# Migraciones
+npm run migration:generate -- src/migrations/NombreMigracion
+npm run migration:run
+npm run migration:revert
+
+# Seeders
+npm run seed
+
+# Tests
+npm run test
+npm run test:e2e
+npm run test:cov
+```
+
+## Seguridad
+
+- Autenticación mediante JWT
+- Contraseñas encriptadas con bcrypt
+- Validación de roles y permisos
+- Protección contra inyección SQL (TypeORM)
+- Validación de datos de entrada
+- CORS configurado
+
+## Manejo de Errores
+
+El sistema incluye manejo de errores estandarizado para:
+- Errores de autenticación
+- Errores de validación
+- Errores de permisos
+- Errores de base de datos
+- Errores de negocio
+
+## Buenas Prácticas Implementadas
+
+- Arquitectura modular
+- Principios SOLID
+- Inyección de dependencias
+- DTOs para validación de datos
+- Interfaces y tipos TypeScript
+- Documentación OpenAPI
+- Logging estructurado
+- Configuración centralizada
+
+## Desarrollo
+
+Para contribuir al proyecto:
+1. Crear una rama para la nueva funcionalidad
+2. Implementar cambios siguiendo el estilo de código
+3. Escribir pruebas
+4. Crear Pull Request
+
+## Despliegue
+
+Para desplegar en producción:
+1. Configurar variables de entorno
+2. Ejecutar migraciones
+3. Compilar el proyecto
+4. Iniciar con PM2 o similar
+
+```bash
+npm run build
+npm run start:prod
+```
+
+## Soporte
+
+Para reportar problemas o solicitar ayuda:
+1. Crear un issue en el repositorio
+2. Proporcionar detalles del problema
+3. Incluir logs relevantes
+
+## Licencia
+
+[MIT licensed](LICENSE)
