@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { t_users } from '../../entities/t_users.entity';
-import { t_employees } from '../../entities/t_employees';
+import { t_employees } from '../../entities/t_employees.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

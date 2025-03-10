@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique, JoinColumn } from 'typeorm';
-import { t_employees } from './t_employees';
+import { t_employees } from './t_employees.entity';
 import { t_document_types } from './t_document_types.entity';
 
 @Entity()

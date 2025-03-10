@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { t_users } from '../entities/t_users.entity';
-import { t_employees } from '../entities/t_employees';
+import { t_employees } from '../entities/t_employees.entity';
 import { t_document_types } from '../entities/t_document_types.entity';
 import { t_employee_documents } from '../entities/t_employee_documents.entity';
 

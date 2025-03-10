@@ -9,7 +9,7 @@ import { t_users } from '../entities/t_users.entity';
 import { ApiTags, ApiOperation, ApiConsumes, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { UploadDocumentDto } from './dtos/upload-document.dto';
 import { DocumentResponseDto, DeleteDocumentResponseDto } from './dtos/document-response.dto';
-import { t_employees } from '../entities/t_employees';
+import { t_employees } from '../entities/t_employees.entity';
 
 @ApiTags('Documentos')
 @Controller('api/documents')
