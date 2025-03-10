@@ -15,7 +15,16 @@ export const AppDataSource = new DataSource({
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   entities: [t_users, t_employees, t_document_types, t_employee_documents],
-  migrations: ['src/migrations/*.ts'],
+  migrations: ['dist/migrations/*.js'],
   synchronize: false,
-  logging: true,
+  logging: process.env.NODE_ENV === 'development',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  cache: {
+    duration: 30000 // 30 segundos de caché
+  },
+  poolSize: 10,
+  extra: {
+    max: 10,
+    connectionTimeoutMillis: 10000,
+  }
 }); 
