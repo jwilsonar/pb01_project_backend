@@ -15,6 +15,6 @@ export default new DataSource({
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     entities: [t_users, t_employees, t_document_types, t_employee_documents],
-    migrations: ['src/migrations/*.ts'],
+    migrations: ['./migrations/*.ts'],
     synchronize: false,
 }); 
