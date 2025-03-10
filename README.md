@@ -26,7 +26,7 @@ API REST desarrollada con NestJS para la gestión de empleados y recursos humano
 
 1. **Clonar el repositorio**
 ```bash
-git clone <repository-url>
+git clone https://github.com/jwilsonar/pb01_project_backend.git
 cd server
 ```
 
