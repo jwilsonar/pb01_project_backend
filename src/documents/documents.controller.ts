@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Request, Body, UseInterceptors, UploadedFile, Delete, Param, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Body, UseInterceptors, UploadedFile, Delete, Param, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { S3Service } from './s3.service';
@@ -10,7 +10,6 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiResponse, ApiBearerAuth, ApiPara
 import { UploadDocumentDto } from './dtos/upload-document.dto';
 import { DocumentResponseDto, DeleteDocumentResponseDto } from './dtos/document-response.dto';
 import { t_employees } from '../entities/t_employees';
-import { t_document_types } from '../entities/t_document_types.entity';
 
 @ApiTags('Documentos')
 @Controller('api/documents')
@@ -23,9 +22,7 @@ export class DocumentsController {
         @InjectRepository(t_users)
         private usersRepository: Repository<t_users>,
         @InjectRepository(t_employees)
-        private employeesRepository: Repository<t_employees>,
-        @InjectRepository(t_document_types)
-        private documentTypesRepository: Repository<t_document_types>
+        private employeesRepository: Repository<t_employees>
     ) {}
 
     @Post('upload')
@@ -50,26 +47,32 @@ export class DocumentsController {
         @Request() req,
         @Body() body: UploadDocumentDto
     ) {
-        console.log("\n\n",body,"\n\n");
-        const employee = await this.employeesRepository.findOne({ where: { id: body.employee_id } });
+        const employee = await this.employeesRepository.findOne({ 
+            where: { id: body.employee_id },
+            relations: ['employee_documents']
+        });
+
         if (!employee) {
             throw new UnauthorizedException('Empleado no encontrado');
         }
-        const documentType = await this.documentTypesRepository.findOne({ where: { id: body.document_type_id } });
-        if (!documentType) {
-            throw new UnauthorizedException('Tipo de documento no encontrado');
+
+        // Verificar si ya existe un documento del mismo tipo
+        const existingDocument = await this.employeeDocumentsRepository.findOne({
+            where: {
+                employee_id: body.employee_id,
+                document_type_id: body.document_type_id,
+                is_active: true
+            }
+        });
+
+        if (existingDocument) {
+            throw new ConflictException('Ya existe un documento activo de este tipo para este empleado');
         }
 
-        const existe = await this.employeeDocumentsRepository.findOne({ where: { employee_id: employee.id, document_type_id: documentType.id } });
-        if (existe) {
-            throw new UnauthorizedException('El documento ya existe');
-        }
         const key = `documents/${employee.id}/${Date.now()}-${file.originalname}`;
         const fileUrl = await this.s3Service.uploadFile(file, key);
         const document = this.employeeDocumentsRepository.create({
-            document_type: documentType,
             document_type_id: Number(body.document_type_id),
-            employee: employee,
             employee_id: employee.id,
             file_path: fileUrl,
             is_active: true
@@ -108,8 +111,11 @@ export class DocumentsController {
         description: 'Documento no encontrado'
     })
     async deleteDocument(@Param('id') id: number, @Request() req) {
-        const document = await this.employeeDocumentsRepository.findOne({ where: { id } });
-        const employee = await this.employeesRepository.findOne({ where: { user: { id: req.user.id } } });
+        const document = await this.employeeDocumentsRepository.findOne({ 
+            where: { id },
+            relations: ['employee', 'employee.user']
+        });
+
         if (!document) {
             throw new UnauthorizedException('Documento no encontrado');
         }
@@ -119,7 +125,8 @@ export class DocumentsController {
             throw new UnauthorizedException('Usuario no encontrado');
         }
 
-        if (document.employee_id !== employee?.id && !user.is_hr) {
+        // Verificar si el usuario es el dueño del documento o es de RRHH
+        if (document.employee.user.id !== user.id && !user.is_hr) {
             throw new UnauthorizedException('No tienes permiso para eliminar este documento');
         }
 

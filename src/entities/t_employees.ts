@@ -18,8 +18,12 @@ export class t_employees {
     user: t_users;
 
     @ManyToOne(() => t_users, (hr_user) => hr_user.created_employees)
+    @JoinColumn({ name: 'created_by' })
     created_by: t_users;
 
-    @OneToMany(() => t_employee_documents, (document) => document.employee)
+    @OneToMany(() => t_employee_documents, (document) => document.employee, {
+        eager: true,
+        cascade: true
+    })
     employee_documents: t_employee_documents[];
 }

@@ -5,6 +5,7 @@ import { t_employees } from '../entities/t_employees';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { t_users } from '../entities/t_users.entity';
+import { S3Service } from '../documents/s3.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class EmpleadosService {
         private employeesRepository: Repository<t_employees>,
         @InjectRepository(t_users)
         private usersRepository: Repository<t_users>,
+        private s3Service: S3Service,
     ) {}
 
     async create(createEmployeeDto: CreateEmployeeDto, createdById: number) {
@@ -62,36 +64,57 @@ export class EmpleadosService {
 
     async findAll() {
         const employees = await this.employeesRepository.find({
-            relations: ['user', 'created_by', 'employee_documents'],
+            relations: ['user', 'created_by', 'employee_documents', 'employee_documents.document_type'],
             order: {
                 id: 'ASC'
             }
         });
 
-        return employees.map(employee => ({
-            id: employee.id,
-            job_title: employee.job_title,
-            salary: employee.salary,
-            first_name: employee.user.first_name,
-            last_name: employee.user.last_name,
-            email: employee.user.email,
-            documents_count: employee.employee_documents?.length || 0,
-            created_by: {
-                id: employee.created_by.id,
-                email: employee.created_by.email
-            }
+        return Promise.all(employees.map(async employee => {
+            // Filtrar solo documentos activos
+            const activeDocuments = employee.employee_documents.filter(doc => doc.is_active);
+            
+            return {
+                id: employee.id,
+                job_title: employee.job_title,
+                salary: employee.salary,
+                first_name: employee.user.first_name,
+                last_name: employee.user.last_name,
+                email: employee.user.email,
+                documents_count: activeDocuments.length,
+                documents: await Promise.all(activeDocuments.map(async doc => {
+                    const key = doc.file_path.replace(`https://${this.s3Service.bucket}.s3.amazonaws.com/`, '');
+                    const signedUrl = await this.s3Service.getSignedUrl(key);
+                    return {
+                        id: doc.id,
+                        document_name: doc.file_path.split('/').pop() || 'Sin nombre',
+                        document_url: signedUrl,
+                        document_type: {
+                            id: doc.document_type.id,
+                            type_name: doc.document_type.name
+                        }
+                    };
+                })),
+                created_by: {
+                    id: employee.created_by.id,
+                    email: employee.created_by.email
+                }
+            };
         }));
     }
 
     async findOne(id: number) {
         const employee = await this.employeesRepository.findOne({
             where: { id },
-            relations: ['user', 'created_by', 'employee_documents']
+            relations: ['user', 'created_by', 'employee_documents', 'employee_documents.document_type']
         });
 
         if (!employee) {
             throw new NotFoundException(`Empleado con ID ${id} no encontrado`);
         }
+
+        // Filtrar solo documentos activos
+        const activeDocuments = employee.employee_documents.filter(doc => doc.is_active);
 
         return {
             id: employee.id,
@@ -100,7 +123,20 @@ export class EmpleadosService {
             first_name: employee.user.first_name,
             last_name: employee.user.last_name,
             email: employee.user.email,
-            documents_count: employee.employee_documents?.length || 0,
+            documents_count: activeDocuments.length,
+            documents: await Promise.all(activeDocuments.map(async doc => {
+                const key = doc.file_path.replace(`https://${this.s3Service.bucket}.s3.amazonaws.com/`, '');
+                const signedUrl = await this.s3Service.getSignedUrl(key);
+                return {
+                    id: doc.id,
+                    document_name: doc.file_path.split('/').pop() || 'Sin nombre',
+                    document_url: signedUrl,
+                    document_type: {
+                        id: doc.document_type.id,
+                        type_name: doc.document_type.name
+                    }
+                };
+            })),
             created_by: {
                 id: employee.created_by.id,
                 email: employee.created_by.email

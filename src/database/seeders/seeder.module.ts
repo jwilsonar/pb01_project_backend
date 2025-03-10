@@ -7,6 +7,7 @@ import { t_employee_documents } from '../../entities/t_employee_documents.entity
 import { t_document_types } from '../../entities/t_document_types.entity';
 import { HrUserSeeder } from './hr-user.seeder';
 import { DocumentTypesSeeder } from './document-types.seeder';
+import { EmployeeSeeder } from './employee.seeder';
 
 @Module({
     imports: [
@@ -25,9 +26,9 @@ import { DocumentTypesSeeder } from './document-types.seeder';
                 synchronize: false,
             }),
         }),
-        TypeOrmModule.forFeature([t_users, t_document_types])
+        TypeOrmModule.forFeature([t_users, t_document_types, t_employees])
     ],
-    providers: [HrUserSeeder, DocumentTypesSeeder],
-    exports: [HrUserSeeder, DocumentTypesSeeder]
+    providers: [HrUserSeeder, DocumentTypesSeeder, EmployeeSeeder],
+    exports: [HrUserSeeder, DocumentTypesSeeder, EmployeeSeeder]
 })
 export class SeederModule {} 

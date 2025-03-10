@@ -88,7 +88,8 @@ export class AuthService {
         const usuario = await this.usersRepository.findOne({
             where: { id: user.id }
         });
-        // Buscar si el usuario tiene un perfil de empleado
+
+        // Buscar si el usuario tiene un perfil de empleado con sus documentos activos
         const employee = await this.employeesRepository.findOne({
             where: { user: { id: user.id } },
             relations: [
@@ -105,14 +106,17 @@ export class AuthService {
             last_name: usuario ? usuario.last_name : '',
             is_hr: usuario ? usuario.is_hr : false
         };
-        console.log("\n\n",employee,"\n\n");
+
         // Si el usuario es un empleado, agregar los detalles
         if (employee) {
+            // Filtrar solo documentos activos
+            const activeDocuments = employee.employee_documents.filter(doc => doc.is_active);
+            
             response.employee = {
                 id: employee.id,
                 job_title: employee.job_title,
                 salary: employee.salary,
-                documents: await Promise.all(employee.employee_documents.map(async doc => {
+                documents: await Promise.all(activeDocuments.map(async doc => {
                     const key = doc.file_path.replace(`https://${this.s3Service.bucket}.s3.amazonaws.com/`, '');
                     const signedUrl = await this.s3Service.getSignedUrl(key);
                     return {
